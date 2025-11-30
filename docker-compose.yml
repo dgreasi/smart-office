@@ -1,0 +1,66 @@
+version: "2.1"
+
+volumes:
+  home-assistant-config:
+  tailscale-state:
+  asterisk-config:
+  asterisk-recordings:
+
+services:
+  asterisk-pbx:
+    container_name: asterisk-pbx
+    image: epandi/asterisk-freepbx-arm:17.15-latest
+    # network_mode: host
+    privileged: true
+    volumes:
+      - asterisk-config:/etc/asterisk
+      - asterisk-recordings:/var/spool/asterisk
+    environment:
+      - TZ=Europe/Athens
+      - RTP_START=18000
+      - RTP_FINISH=18100
+    ports:
+      - "8080:80" # FreePBX web UI exposed at port 8080 on host
+      - "5060:5060/udp"
+      - "5160:5160/udp"
+      - "18000-18100:18000-18100/udp"
+    restart: unless-stopped
+    platform: linux/arm64 # Specify platform for clarity, though not always required
+
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:2025.11.0
+    network_mode: host
+    privileged: true
+    labels:
+      io.balena.features.dbus: "1"
+    volumes:
+      - home-assistant-config:/config
+    environment:
+      - TZ=Europe/Athens # Set your timezone here instead of mounting /etc/localtime
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0 # Zigbee stick
+      - /dev/ttyUSB1:/dev/ttyUSB1 # Thread/Matter stick
+      - /dev/ttyAMA0:/dev/ttyAMA0 # Add this for Bluetooth
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN # Add this for Bluetooth access
+    restart: unless-stopped
+
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    network_mode: "host"
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+    environment:
+      - TS_AUTHKEY # Set in Balena variables
+      - TS_ROUTES # Set in Balena variables
+      - TS_ACCEPT_ROUTES # Set in Balena variables
+      - TS_HOSTNAME # Set in Balena variables
+    restart: unless-stopped

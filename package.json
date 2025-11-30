@@ -1,0 +1,23 @@
+{
+  "name": "smart-office",
+  "version": "1.0.0",
+  "description": "A repo to add smart automations for an office, like home assistant, docker and pbx asterisk",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "dotenv -e .env -- bash -c 'balena push $PROJECT_NAME -m'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgreasi/smart-office.git"
+  },
+  "author": "Dimitrios Greasidis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dgreasi/smart-office/issues"
+  },
+  "homepage": "https://github.com/dgreasi/smart-office#readme",
+  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "dotenv-cli": "^11.0.0"
+  }
+}
