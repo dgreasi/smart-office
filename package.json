@@ -4,6 +4,7 @@
   "description": "A repo to add smart automations for an office, like home assistant, docker and pbx asterisk",
   "main": "index.js",
   "scripts": {
+    "deploy:smart-home": "cd smart-home && dotenv -e .env -- bash -c 'balena push $PROJECT_NAME -m'",
     "deploy": "dotenv -e .env -- bash -c 'balena push $PROJECT_NAME -m'"
   },
   "repository": {
